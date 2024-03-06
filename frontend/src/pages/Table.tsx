@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useState } from "react";
 import {
   createColumnHelper,
@@ -6,48 +6,55 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import axios from 'axios';
+import { useNavigate,Link } from 'react-router-dom';
+import Frombutton from '../components/Frombutton';
+import Formupdatebutton from '../components/Formupdatebutton';
+import FormDeleteButton from '../components/FormDeleteButton';
 
 type Student = {
-    Id: number;
+    ID: number;
     name: string;
-    phone:number,
+    phoneno:number,
     email:string,
-    Hobbies: string;
+    hobbies: string;
   };
 
   const columnHelper = createColumnHelper<Student>();
 const columns = [
   columnHelper.display({
     id:'actions',
-    cell: (props) => (
+    cell: () => (
       <input type="checkbox"></input>
     ),
     
   }),
-  columnHelper.accessor("studentId", {
-    header: "Student ID",
-    type:"text",
+  columnHelper.accessor("ID", {
+    header: "ID",
   }),
   columnHelper.accessor("name", {
-    header: "Full Name",
+    header: " Name",
   }),
-  columnHelper.accessor("dateOfBirth", {
-    header: "Date Of Birth",
+  columnHelper.accessor("phoneno", {
+    header: "Phone No.",
   }),
-  columnHelper.accessor("major", {
-    header: "Major",
+  columnHelper.accessor("email", {
+    header: "Email",
+  }),
+  columnHelper.accessor("hobbies",{
+    header:"Hobbies",
   }),
   columnHelper.display({
     id:'actions',
-    cell: (props) => (
-      <button className='border-2 rounded border-black bg-blue-400'> Update</button>
+    cell: () => (
+      <Formupdatebutton/>
     ),
     
   }),
   columnHelper.display({
     id:'actions',
-    cell: (props) => (
-      <button className='border-2 rounded border-black bg-red-400'>Delete</button>
+    cell: () => (
+      <FormDeleteButton/>
     ),
     
   }),
@@ -56,39 +63,37 @@ const columns = [
 
 const defaultData: Student[] = [
     {
-      studentId: 1111,
+      ID: 1111,
       name: "Bahar Constantia",
-      dateOfBirth: "1984-01-04",
-      major: "Business",
+      phoneno: 23123,
+      email: "shit@gmail.com",
+      hobbies:"shit is easy to do",
     },
-    {
-      studentId: 2222,
-      name: "Harold Nona",
-      dateOfBirth: "1961-05-10",
-      major: "Communications",
-    },
-    {
-      studentId: 3333,
-      name: "Raginolf Arnulf",
-      dateOfBirth: "1991-10-12",
-      major: "Business",
-    },
-    {
-      studentId: 4444,
-      name: "Marvyn Wendi",
-      dateOfBirth: "1978-09-24",
-      major: "Business",
-    },
+   
+   
   ];
+
+
+ 
 export default function Table() {
+  //const navigate=useNavigate();
     const [data, setData] = useState(() => [...defaultData]);
+    useEffect(() => {
+      axios.get<Student[]>("http://localhost:3000/api/v1/user/getdata")
+        .then((res) => setData(res.data))
+        .catch((err)=>{
+          console.log(err);
+        })
+    
+    }, [data]);
     const table = useReactTable({
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
       });
   return (
-    <div className='border-2 rounded border-black p-3'>
+    <div className='border-2 rounded border-black p-3 flex flex-col justify-center relative pb-10'>
+      <div>
         <table >
       <thead>
         {table.getHeaderGroups().map((headerGroup) => (
@@ -116,7 +121,8 @@ export default function Table() {
           </tr>
         ))}</tbody>
         </table>
-
+        </div>
+      <div className='w-24 relative left-80 pt-2'>{<Frombutton/>}</div>
     </div>
   )
 }
